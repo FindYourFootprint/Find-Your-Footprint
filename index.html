@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Find Your Footprint - Sustainability Tool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2e7d32;
+      --primary-hover: #1b5e20;
+      --primary-light: #e8f5e9;
+      --surface: #ffffff;
+      --background: #f4f6f4;
+      --text-main: #1c251e;
+      --text-muted: #607263;
+      --border: #e0e6e1;
+      --radius: 16px;
+      --shadow: 0 12px 32px rgba(0, 0, 0, 0.05);
+      --badge-bg: #e8f5e9;
+      --badge-text: #2e7d32;
+      --select-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%20607263' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    }
+
+    [data-theme="dark"] {
+      --primary: #4caf50;
+      --primary-hover: #81c784;
+      --primary-light: #1b3320;
+      --surface: #18221a;
+      --background: #0f1611;
+      --text-main: #e8f0e9;
+      --text-muted: #9eb1a1;
+      --border: #29382c;
+      --shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+      --badge-bg: #223826;
+      --badge-text: #81c784;
+      --select-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239eb1a1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--background);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    .app-wrapper {
+      width: 100%;
+      max-width: 850px;
+    }
+
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .brand {
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      user-select: none;
+      padding: 0.25rem 0.5rem;
+      border-radius: 8px;
+    }
+
+    .brand:hover {
+      opacity: 0.85;
+      background: var(--primary-light);
+    }
+
+    .nav-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .nav-btn:hover {
+      border-color: var(--primary);
+    }
+
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2.5rem;
+      border: 1px solid var(--border);
+      margin-bottom: 2rem;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .modal-title {
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+
+    .close-btn {
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .sources-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .sources-list li a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem;
+      background: var(--background);
+      border-radius: 8px;
+    }
+
+    .sources-list li a:hover {
+      background: var(--primary-light);
+    }
+
+    /* Landing */
+    .hero {
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--badge-bg);
+      color: var(--badge-text);
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+      letter-spacing: -0.03em;
+    }
+
+    p.lead {
+      font-size: 1.125rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+
+    .region-select-wrapper {
+      margin-bottom: 2rem;
+      text-align: left;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .field-label {
+      font-size: 0.875rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: block;
+      color: var(--text-muted);
+    }
+
+    select.input-field {
+      width: 100%;
+      padding: 0.85rem 2.5rem 0.85rem 1rem;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background-color: var(--surface);
+      background-image: var(--select-icon);
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1rem;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      outline: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      cursor: pointer;
+    }
+
+    select.input-field:focus {
+      border-color: var(--primary);
+    }
+
+    .btn-cta {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      font-size: 1.1rem;
+      font-weight: 700;
+      padding: 1rem 2.5rem;
+      border-radius: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-cta:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .stat-card {
+      background: var(--background);
+      padding: 1rem;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .stat-val {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .stat-lbl {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+      font-weight: 500;
+    }
+
+    /* Help & Support Section */
+    .home-resources {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .resources-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+
+    .resource-card {
+      background: var(--background);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .resource-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .resource-card p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+
+    .resource-card a {
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-decoration: none;
+      margin-top: auto;
+    }
+
+    .resource-card a:hover {
+      text-decoration: underline;
+    }
+
+    /* Quiz */
+    .quiz-nav-header {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      margin-bottom: 1rem;
+    }
+
+    .back-btn {
+      background: var(--background);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .back-btn:hover:not(:disabled) {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .back-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .progress-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  flex: 1;
+  align-self: flex-end; /* Aligns progress text with the bottom of the back button */
+  margin-bottom: 9.2px;
+}
+
+    .progress {
+      height: 8px;
+      background: var(--primary-light);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: var(--primary);
+      width: 0%;
+    }
+
+    .question-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .question {
+      font-size: 1.35rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .info-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--border);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .info-badge:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--text-main);
+      color: var(--surface);
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      white-space: normal;
+      width: 200px;
+      box-shadow: var(--shadow);
+      z-index: 10;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      margin-bottom: 2rem;
+    }
+
+    .option {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      font-size: 1rem;
+      font-family: inherit;
+      font-weight: 600;
+      color: var(--text-main);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .option:hover {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .option.selected {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary-hover);
+    }
+
+    .quiz-controls {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .next-button {
+      flex: 3;
+      background: var(--primary);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 1rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .next-button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .skip-button {
+      flex: 1;
+      background: transparent;
+      border: 2px solid var(--border);
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 1rem;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .skip-button:hover {
+      border-color: var(--text-muted);
+      color: var(--text-main);
+    }
+
+    /* Results */
+    .results {
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .result-card {
+      background: var(--primary-light);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .result-val {
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--primary-hover);
+      line-height: 1;
+    }
+
+    .result-unit {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+    }
+
+    .pledged-val {
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 1.1rem;
+      margin-top: 0.5rem;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 1.2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .breakdown {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .bar-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .bar-track {
+      height: 12px;
+      background: var(--background);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 999px;
+      width: 0%;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .benchmark-container {
+      background: var(--background);
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 2.5rem;
+    }
+
+    .bench-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .bench-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .bench-lbl {
+      width: 140px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .bench-track {
+      flex: 1;
+      height: 10px;
+      background: var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bench-fill {
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    .bench-val {
+      width: 60px;
+      text-align: right;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .pledges {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .pledge-item {
+      background: var(--background);
+      padding: 1rem;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      border: 2px solid transparent;
+      cursor: pointer;
+    }
+
+    .pledge-item.active {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .pledge-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .pledge-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .pledge-impact {
+      font-size: 0.8rem;
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .checkbox {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      color: #fff;
+    }
+
+    .pledge-item.active .checkbox {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .restart-button, .share-button {
+      flex: 1;
+      background: transparent;
+      border: 2px solid var(--border);
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 1rem;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .share-button {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+    }
+
+    @media (max-width: 650px) {
+      .results-grid {
+        grid-template-columns: 1fr;
+      }
+      .stats-grid, .resources-grid {
+        grid-template-columns: 1fr;
+      }
+      .bench-lbl {
+        width: 100px;
+        font-size: 0.75rem;
+      }
+      h1 {
+        font-size: 1.8rem;
+      }
+      .card {
+        padding: 1.5rem;
+      }
+      .btn-group {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-wrapper">
+    <div class="nav-bar">
+      <div class="brand" id="brand-home" title="Return to Landing Page">Find Your Footprint</div>
+      <div class="nav-actions">
+        <button class="nav-btn" id="sources-btn">Data Sources</button>
+        <button class="nav-btn" id="theme-btn">Dark Mode</button>
+      </div>
+    </div>
+
+    <div id="landing-view">
+      <div class="card hero">
+        <span class="badge">climate change awareness platform</span>
+        <h1>Understand & Reduce Your Carbon Footprint</h1>
+        <p class="lead">
+          Household emissions drive over 70% of global climate impact. Measure your baseline, compare against global benchmarks, and build a personalized reduction action plan.
+        </p>
+
+        <div class="region-select-wrapper">
+          <label class="field-label" for="region-select">Select your region grid intensity:</label>
+          <select class="input-field" id="region-select">
+            <option value="1.0">United States Average</option>
+            <option value="0.8">Europe Average</option>
+            <option value="1.2">Australia or High Fossil Grid</option>
+            <option value="0.3">Clean Grid like Iceland, Norway, Quebec</option>
+          </select>
+        </div>
+
+        <button class="btn-cta" id="start-btn">Start Quiz &rarr;</button>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-val">17.3 t</div>
+            <div class="stat-lbl">US Avg CO₂e/yr</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val">4.7 t</div>
+            <div class="stat-lbl">Global Avg CO₂e/yr</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val">2.3 t</div>
+            <div class="stat-lbl">2030 Climate Goal</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card home-resources">
+        <div class="section-title" style="margin-bottom: 0;">
+          <span>What You Can Do To Help</span>
+        </div>
+        <p class="lead" style="margin-bottom: 0; font-size: 1rem;">
+          Taking meaningful climate action combines individual changes, community involvement, and supporting organizations driving systemic progress.
+        </p>
+
+        <div class="resources-grid">
+          <div class="resource-card">
+            <h3>Individual Actions</h3>
+            <p>Switch to clean electricity tariffs, adopt plant-rich diets, reduce air travel, and upgrade to heat pumps or EVs.</p>
+            <a href="https://www.un.org/en/actnow" target="_blank" rel="noopener noreferrer">UN ActNow Campaign &rarr;</a>
+          </div>
+          <div class="resource-card">
+            <h3>Support & Donate</h3>
+            <p>Support verified high-impact climate organizations focused on reforestation, clean tech policy, and carbon removal.</p>
+            <a href="https://www.givinggreen.org/" target="_blank" rel="noopener noreferrer">Giving Green Recommendations &rarr;</a>
+          </div>
+          <div class="resource-card">
+            <h3>Civic Advocacy</h3>
+            <p>Vote for sustainable policies, engage in local community initiatives, and advocate for corporate transparency.</p>
+            <a href="https://citizensclimatelobby.org/" target="_blank" rel="noopener noreferrer">Citizens' Climate Lobby &rarr;</a>
+          </div>
+        </div>
+
+        <div class="section-title" style="margin-bottom: 0; margin-top: 1rem;">
+          <span>Articles & Insights</span>
+        </div>
+
+        <div class="resources-grid">
+          <div class="resource-card">
+            <h3>IPCC Synthesis Summary</h3>
+            <p>Key takeaways on global warming trajectories, impacts, and essential mitigation pathways for this decade.</p>
+            <a href="https://www.ipcc.ch/report/ar6/syr/" target="_blank" rel="noopener noreferrer">Read Briefing &rarr;</a>
+          </div>
+          <div class="resource-card">
+            <h3>Project Drawdown Solutions</h3>
+            <p>Explore top actionable solutions to reach peak greenhouse gas levels and reduce overall atmospheric concentrations.</p>
+            <a href="https://drawdown.org/solutions" target="_blank" rel="noopener noreferrer">Explore Solutions &rarr;</a>
+          </div>
+          <div class="resource-card">
+            <h3>IEA Net Zero Roadmap</h3>
+            <p>A global roadmap for the energy sector to reach net-zero emissions by 2050 while securing resilient energy supplies.</p>
+            <a href="https://www.iea.org/reports/net-zero-by-2050" target="_blank" rel="noopener noreferrer">View Roadmap &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="quiz-view" style="display: none;">
+      <div class="quiz-nav-header">
+        <button class="back-btn" id="back-btn" title="Previous Question" aria-label="Previous Question">&larr;</button>
+        <div class="progress-meta">
+          <span>Progress</span>
+          <span id="step-counter">1 of 20</span>
+        </div>
+      </div>
+      <div class="progress">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+
+      <div class="question-header">
+        <div class="question" id="question"></div>
+        <div class="info-badge" id="info-badge" data-tooltip="Calculation basis details">?</div>
+      </div>
+
+      <div class="options" id="options"></div>
+      
+      <div class="quiz-controls">
+        <button class="skip-button" id="skip-button">Skip</button>
+        <button class="next-button" id="next-button" disabled>Next Question</button>
+      </div>
+    </div>
+
+    <div class="card results" id="results-view" style="display: none;">
+      <div class="results-grid">
+        <div class="result-card">
+          <div class="result-val" id="total-result">0.00</div>
+          <div class="result-unit">Baseline Tons CO₂e / Year</div>
+        </div>
+        <div class="result-card" style="background: var(--background);">
+          <div class="result-val" id="pledged-result" style="color: var(--primary);">0.00</div>
+          <div class="result-unit">Potential Footprint with Pledges</div>
+          <div class="pledged-val" id="savings-val">Savings: -0.00 t</div>
+        </div>
+      </div>
+
+      <div class="section-title">Comparative Benchmarks</div>
+      <div class="benchmark-container">
+        <div class="bench-row">
+          <div class="bench-lbl">Your Footprint</div>
+          <div class="bench-track"><div class="bench-fill" id="bench-user" style="background: var(--primary);"></div></div>
+          <div class="bench-val" id="bench-user-val">0 t</div>
+        </div>
+        <div class="bench-row">
+          <div class="bench-lbl">US Average</div>
+          <div class="bench-track"><div class="bench-fill" style="width: 86%; background: #e53935;"></div></div>
+          <div class="bench-val">17.3 t</div>
+        </div>
+        <div class="bench-row">
+          <div class="bench-lbl">Global Average</div>
+          <div class="bench-track"><div class="bench-fill" style="width: 23%; background: #fb8c00;"></div></div>
+          <div class="bench-val">4.7 t</div>
+        </div>
+        <div class="bench-row">
+          <div class="bench-lbl">2030 Paris Goal</div>
+          <div class="bench-track"><div class="bench-fill" style="width: 11%; background: #43a047;"></div></div>
+          <div class="bench-val">2.3 t</div>
+        </div>
+      </div>
+
+      <div class="section-title">Emissions Breakdown by Sector</div>
+      <div class="breakdown">
+        <div class="bar-item">
+          <div class="bar-label"><span>Home Energy</span><span id="home-val">0 t</span></div>
+          <div class="bar-track"><div class="bar-fill" id="home-bar"></div></div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-label"><span>Diet & Food</span><span id="diet-val">0 t</span></div>
+          <div class="bar-track"><div class="bar-fill" id="diet-bar"></div></div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-label"><span>Daily Commute</span><span id="transport-val">0 t</span></div>
+          <div class="bar-track"><div class="bar-fill" id="transport-bar"></div></div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-label"><span>Air Travel</span><span id="flights-val">0 t</span></div>
+          <div class="bar-track"><div class="bar-fill" id="flights-bar"></div></div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-label"><span>Goods & Shopping</span><span id="shopping-val">0 t</span></div>
+          <div class="bar-track"><div class="bar-fill" id="shopping-bar"></div></div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-label"><span>Waste Management</span><span id="waste-val">0 t</span></div>
+          <div class="bar-track"><div class="bar-fill" id="waste-bar"></div></div>
+        </div>
+      </div>
+
+      <div class="section-title">
+        <span>Reduction Action Plan (Select Pledges)</span>
+      </div>
+      <div class="pledges" id="pledges-container"></div>
+
+      <div class="btn-group">
+        <button class="restart-button" id="restart-btn">Retake Quiz</button>
+        <button class="share-button" id="share-btn">Copy Results Link</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="sources-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Information Sources</div>
+        <button class="close-btn" id="close-modal-btn">&times;</button>
+      </div>
+      <p style="font-size: 0.9rem; color: var(--text-muted);">
+        Our calculation factors and global benchmarks draw from established environmental research bodies:
+      </p>
+      <ul class="sources-list">
+        <li>
+          <a href="https://www.epa.gov/ghgemissions" target="_blank" rel="noopener noreferrer">
+            <span>EPA Greenhouse Gas Equivalencies</span>
+            <span>&rarr;</span>
+          </a>
+        </li>
+        <li>
+          <a href="https://www.iea.org/reports/global-energy-co2-status-report-2019" target="_blank" rel="noopener noreferrer">
+            <span>IEA Global Energy & CO₂ Data</span>
+            <span>&rarr;</span>
+          </a>
+        </li>
+        <li>
+          <a href="https://www.ipcc.ch/report/ar6/syr/" target="_blank" rel="noopener noreferrer">
+            <span>IPCC Sixth Assessment Report</span>
+            <span>&rarr;</span>
+          </a>
+        </li>
+        <li>
+          <a href="https://www.wri.org/climate" target="_blank" rel="noopener noreferrer">
+            <span>World Resources Institute Climate Data</span>
+            <span>&rarr;</span>
+          </a>
+        </li>
+        <li>
+          <a href="https://www.globalcarbonproject.org/" target="_blank" rel="noopener noreferrer">
+            <span>Global Carbon Project Benchmark Atlas</span>
+            <span>&rarr;</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // 20 QUESTIONS CONFIGURATION
+    const QUESTIONS = [
+      {
+        cat: "home",
+        question: "What type of home do you live in?",
+        tooltip: "Home size and building type determine base heating and cooling requirements.",
+        options: [
+          { text: "Small Apartment or Flat", value: 1.2 },
+          { text: "Medium Townhouse or Condo", value: 2.2 },
+          { text: "Single Family House", value: 4.0 },
+          { text: "Large Multi Story House", value: 6.0 }
+        ]
+      },
+      {
+        cat: "home",
+        question: "How is your home primarily heated?",
+        tooltip: "Heat pumps are significantly more energy efficient than fossil gas or oil systems.",
+        options: [
+          { text: "Electric Heat Pump or Solar Thermal", value: 0.5 },
+          { text: "Natural Gas System", value: 1.8 },
+          { text: "Electric Baseboard Heating", value: 2.5 },
+          { text: "Heating Oil or Propane", value: 3.5 }
+        ]
+      },
+      {
+        cat: "home",
+        question: "How cold do you keep air conditioning in summer?",
+        tooltip: "Air conditioning intensity adds a notable load during summer grid peak times.",
+        options: [
+          { text: "No Air Conditioning Used", value: 0.0 },
+          { text: "Moderate Cooling as Needed", value: 0.5 },
+          { text: "Constant Cool Air", value: 1.5 }
+        ]
+      },
+      {
+        cat: "home",
+        question: "Does your home run on renewable electricity?",
+        tooltip: "Rooftop solar or green power tariffs cut grid electricity emissions significantly.",
+        options: [
+          { text: "Full Rooftop Solar or Green Tariff", value: 0.2 },
+          { text: "Partial Green Energy Plan", value: 0.8 },
+          { text: "Standard Grid Electricity", value: 1.8 }
+        ]
+      },
+      {
+        cat: "diet",
+        question: "What best describes your primary diet type?",
+        tooltip: "Animal agriculture, especially beef, demands substantial land and methane output.",
+        options: [
+          { text: "Fully Plant Based Vegan", value: 0.5 },
+          { text: "Vegetarian or Pescatarian", value: 1.0 },
+          { text: "Moderate Meat Eater", value: 1.8 },
+          { text: "Heavy Meat Eater", value: 2.8 }
+        ]
+      },
+      {
+        cat: "diet",
+        question: "How often do you consume beef or lamb?",
+        tooltip: "Ruminant animals carry up to ten times higher emissions than poultry or grains.",
+        options: [
+          { text: "Rarely or Never", value: 0.2 },
+          { text: "Once or Twice a Week", value: 0.8 },
+          { text: "Almost Daily", value: 1.8 }
+        ]
+      },
+      {
+        cat: "diet",
+        question: "How much food does your household throw away?",
+        tooltip: "Rotting food waste in landfills emits high amounts of methane gas.",
+        options: [
+          { text: "Minimal to No Waste", value: 0.1 },
+          { text: "Average Household Scrap Waste", value: 0.5 },
+          { text: "Frequent Unused Leftover Waste", value: 1.2 }
+        ]
+      },
+      {
+        cat: "diet",
+        question: "How often do you purchase locally grown food?",
+        tooltip: "Local agricultural sourcing cuts freight distribution logistics emissions.",
+        options: [
+          { text: "Most Groceries Are Local", value: 0.2 },
+          { text: "Occasional Local Purchases", value: 0.5 },
+          { text: "Standard Imported Supermarket Foods", value: 0.9 }
+        ]
+      },
+      {
+        cat: "transport",
+        question: "What is your primary mode of daily commuting?",
+        tooltip: "Active and public transit reduce per capita urban transport emissions.",
+        options: [
+          { text: "Walk Bicycle or Work From Home", value: 0.0 },
+          { text: "Public Bus or Subway", value: 0.6 },
+          { text: "Electric Car or Hybrid", value: 1.2 },
+          { text: "Gasoline Powered Vehicle", value: 3.2 }
+        ]
+      },
+      {
+        cat: "transport",
+        question: "How many miles do you drive per year?",
+        tooltip: "Total vehicle miles traveled scales fuel consumption and wear impacts.",
+        options: [
+          { text: "Under 2000 Miles", value: 0.3 },
+          { text: "2000 to 7000 Miles", value: 1.2 },
+          { text: "7000 to 15000 Miles", value: 2.8 },
+          { text: "Over 15000 Miles", value: 4.8 }
+        ]
+      },
+      {
+        cat: "transport",
+        question: "What size car do you drive most often?",
+        tooltip: "Larger SUVs and trucks consume more fuel per mile than compact vehicles.",
+        options: [
+          { text: "Compact Car or Hatchback", value: 1.0 },
+          { text: "Sedan or Crossover", value: 1.8 },
+          { text: "Large SUV or Pickup Truck", value: 3.2 }
+        ]
+      },
+      {
+        cat: "transport",
+        question: "How often do you carpool or ride share?",
+        tooltip: "Sharing trips splits emissions across multiple passengers.",
+        options: [
+          { text: "Frequently Shared Rides", value: 0.3 },
+          { text: "Occasional Carpooling", value: 0.8 },
+          { text: "Almost Always Drive Alone", value: 1.5 }
+        ]
+      },
+      {
+        cat: "flights",
+        question: "How many short domestic flights do you take yearly?",
+        tooltip: "Short haul flights spend high proportions of fuel in takeoff phases.",
+        options: [
+          { text: "None", value: 0.0 },
+          { text: "1 to 2 Flights", value: 0.6 },
+          { text: "3 to 5 Flights", value: 1.5 },
+          { text: "6 or More Flights", value: 3.0 }
+        ]
+      },
+      {
+        cat: "flights",
+        question: "How many long international flights do you take yearly?",
+        tooltip: "Long haul flights release significant emissions high in the atmosphere.",
+        options: [
+          { text: "None", value: 0.0 },
+          { text: "1 Flight", value: 1.8 },
+          { text: "2 to 3 Flights", value: 4.2 },
+          { text: "4 or More Flights", value: 7.5 }
+        ]
+      },
+      {
+        cat: "shopping",
+        question: "How often do you buy new clothing or apparel?",
+        tooltip: "Fast fashion textiles carry intense manufacturing and shipping burdens.",
+        options: [
+          { text: "Rarely or Second Hand First", value: 0.2 },
+          { text: "Monthly Seasonal Purchases", value: 0.8 },
+          { text: "Frequent Fast Fashion Shopping", value: 2.0 }
+        ]
+      },
+      {
+        cat: "shopping",
+        question: "How frequently do you upgrade tech devices?",
+        tooltip: "Electronic hardware manufacturing uses energy dense supply chains.",
+        options: [
+          { text: "Keep Devices for 4 or More Years", value: 0.2 },
+          { text: "Upgrade Devices Every 2 Years", value: 0.8 },
+          { text: "Always Get Latest Models Yearly", value: 1.8 }
+        ]
+      },
+      {
+        cat: "shopping",
+        question: "How often do you use fast express delivery options?",
+        tooltip: "Expedited shipping often prevents efficient delivery vehicle routing.",
+        options: [
+          { text: "Standard Shipping Only", value: 0.2 },
+          { text: "Occasional Express Orders", value: 0.6 },
+          { text: "Constant Express Deliveries", value: 1.4 }
+        ]
+      },
+      {
+        cat: "shopping",
+        question: "What is your main strategy for consumer purchases?",
+        tooltip: "Minimalism and repair culture directly prevent manufacturing emissions.",
+        options: [
+          { text: "Minimalist Buy Only Essentials", value: 0.3 },
+          { text: "Moderate Consumer Usage", value: 1.0 },
+          { text: "Frequent Shopping and Consumption", value: 2.2 }
+        ]
+      },
+      {
+        cat: "waste",
+        question: "How regularly do you recycle common materials?",
+        tooltip: "Recycling reduces raw material extraction and energy inputs.",
+        options: [
+          { text: "Always Recycle All Paper Metals Plastics", value: 0.2 },
+          { text: "Recycle Some Materials", value: 0.6 },
+          { text: "Rarely or Never Recycle", value: 1.2 }
+        ]
+      },
+      {
+        cat: "waste",
+        question: "Do you compost kitchen scraps and yard waste?",
+        tooltip: "Composting diverts organic material away from methane producing landfills.",
+        options: [
+          { text: "Yes Dedicated Composting", value: 0.1 },
+          { text: "Occasionally Compost", value: 0.4 },
+          { text: "No All Waste to Trash", value: 0.9 }
+        ]
+      }
+    ];
+
+    const ACTION_PLEDGES = [
+      { id: "pledge_heatpump", title: "Install Heat Pump or Green Tariff", reduction: 1.2 },
+      { id: "pledge_meatless", title: "Adopt Meatless Days Weekly", reduction: 0.8 },
+      { id: "pledge_ev", title: "Transition Commute to EV or Transit", reduction: 1.5 },
+      { id: "pledge_flight", title: "Replace One Short Flight with Train", reduction: 0.5 },
+      { id: "pledge_compost", title: "Compost Household Scraps", reduction: 0.3 }
+    ];
+
+    // State Variables
+    let currentStep = 0;
+    let answers = {};
+    let activePledges = new Set();
+    let gridMultiplier = 1.0;
+
+    // DOM Elements
+    const landingView = document.getElementById("landing-view");
+    const quizView = document.getElementById("quiz-view");
+    const resultsView = document.getElementById("results-view");
+    
+    const startBtn = document.getElementById("start-btn");
+    const brandHome = document.getElementById("brand-home");
+    const regionSelect = document.getElementById("region-select");
+    const backBtn = document.getElementById("back-btn");
+    const nextBtn = document.getElementById("next-button");
+    const skipBtn = document.getElementById("skip-button");
+    const restartBtn = document.getElementById("restart-btn");
+    const shareBtn = document.getElementById("share-btn");
+    
+    const stepCounter = document.getElementById("step-counter");
+    const progressBar = document.getElementById("progress-bar");
+    const questionText = document.getElementById("question");
+    const infoBadge = document.getElementById("info-badge");
+    const optionsContainer = document.getElementById("options");
+    
+    const sourcesBtn = document.getElementById("sources-btn");
+    const sourcesModal = document.getElementById("sources-modal");
+    const closeModalBtn = document.getElementById("close-modal-btn");
+    const themeBtn = document.getElementById("theme-btn");
+
+    // Theme toggle
+    themeBtn.addEventListener("click", () => {
+      const currentTheme = document.documentElement.getAttribute("data-theme");
+      const nextTheme = currentTheme === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", nextTheme);
+      themeBtn.textContent = nextTheme === "dark" ? "Light Mode" : "Dark Mode";
+    });
+
+    // Modal behavior
+    sourcesBtn.addEventListener("click", () => sourcesModal.classList.add("active"));
+    closeModalBtn.addEventListener("click", () => sourcesModal.classList.remove("active"));
+    sourcesModal.addEventListener("click", (e) => {
+      if (e.target === sourcesModal) sourcesModal.classList.remove("active");
+    });
+
+    // Navigation handlers
+    brandHome.addEventListener("click", resetToHome);
+    startBtn.addEventListener("click", startQuiz);
+    backBtn.addEventListener("click", goToPreviousQuestion);
+    nextBtn.addEventListener("click", goToNextQuestion);
+    skipBtn.addEventListener("click", skipQuestion);
+    restartBtn.addEventListener("click", startQuiz);
+    shareBtn.addEventListener("click", copyShareLink);
+
+    function resetToHome() {
+      currentStep = 0;
+      answers = {};
+      activePledges.clear();
+      quizView.style.display = "none";
+      resultsView.style.display = "none";
+      landingView.style.display = "block";
+    }
+
+    function startQuiz() {
+      gridMultiplier = parseFloat(regionSelect.value) || 1.0;
+      currentStep = 0;
+      answers = {};
+      activePledges.clear();
+      landingView.style.display = "none";
+      resultsView.style.display = "none";
+      quizView.style.display = "block";
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = QUESTIONS[currentStep];
+      stepCounter.textContent = `${currentStep + 1} of ${QUESTIONS.length}`;
+      progressBar.style.width = `${((currentStep + 1) / QUESTIONS.length) * 100}%`;
+      
+      backBtn.disabled = currentStep === 0;
+
+      questionText.textContent = q.question;
+      infoBadge.setAttribute("data-tooltip", q.tooltip);
+
+      optionsContainer.innerHTML = "";
+      nextBtn.disabled = answers[currentStep] === undefined;
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "option";
+        if (answers[currentStep] && answers[currentStep].value === opt.value) {
+          btn.classList.add("selected");
+        }
+        btn.textContent = opt.text;
+        btn.addEventListener("click", () => selectOption(opt, idx));
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    function selectOption(opt, idx) {
+      answers[currentStep] = { value: opt.value, cat: QUESTIONS[currentStep].cat };
+      const optionBtns = optionsContainer.querySelectorAll(".option");
+      optionBtns.forEach((btn, i) => {
+        btn.classList.toggle("selected", i === idx);
+      });
+      nextBtn.disabled = false;
+    }
+
+    function goToNextQuestion() {
+      if (currentStep < QUESTIONS.length - 1) {
+        currentStep++;
+        renderQuestion();
+      } else {
+        calculateResults();
+      }
+    }
+
+    function goToPreviousQuestion() {
+      if (currentStep > 0) {
+        currentStep--;
+        renderQuestion();
+      }
+    }
+
+    function skipQuestion() {
+      if (!answers[currentStep]) {
+        answers[currentStep] = { value: 0, cat: QUESTIONS[currentStep].cat };
+      }
+      goToNextQuestion();
+    }
+
+    function calculateResults() {
+      const catTotals = {
+        home: 0,
+        diet: 0,
+        transport: 0,
+        flights: 0,
+        shopping: 0,
+        waste: 0
+      };
+
+      Object.values(answers).forEach(ans => {
+        if (ans && ans.cat) {
+          catTotals[ans.cat] += ans.value;
+        }
+      });
+
+      // Apply regional grid multiplier to home energy
+      catTotals.home *= gridMultiplier;
+
+      const totalBaseline = Object.values(catTotals).reduce((a, b) => a + b, 0);
+
+      quizView.style.display = "none";
+      resultsView.style.display = "block";
+
+      document.getElementById("total-result").textContent = totalBaseline.toFixed(2);
+      
+      // Category Breakdown Bars
+      const maxCatVal = Math.max(...Object.values(catTotals), 1);
+      Object.keys(catTotals).forEach(cat => {
+        const val = catTotals[cat];
+        document.getElementById(`${cat}-val`).textContent = `${val.toFixed(2)} t`;
+        document.getElementById(`${cat}-bar`).style.width = `${(val / maxCatVal) * 100}%`;
+      });
+
+      // User Benchmark Bar
+      const userBenchWidth = Math.min((totalBaseline / 20) * 100, 100);
+      document.getElementById("bench-user").style.width = `${userBenchWidth}%`;
+      document.getElementById("bench-user-val").textContent = `${totalBaseline.toFixed(1)} t`;
+
+      renderPledges(totalBaseline);
+      updatePledgeSavings(totalBaseline);
+    }
+
+    function renderPledges(totalBaseline) {
+      const pledgesContainer = document.getElementById("pledges-container");
+      pledgesContainer.innerHTML = "";
+
+      ACTION_PLEDGES.forEach(pledge => {
+        const item = document.createElement("div");
+        item.className = `pledge-item ${activePledges.has(pledge.id) ? "active" : ""}`;
+        
+        item.innerHTML = `
+          <div class="pledge-info">
+            <div class="pledge-title">${pledge.title}</div>
+            <div class="pledge-impact">-${pledge.reduction} Tons CO₂e/yr</div>
+          </div>
+          <div class="checkbox">${activePledges.has(pledge.id) ? "✓" : ""}</div>
+        `;
+
+        item.addEventListener("click", () => {
+          if (activePledges.has(pledge.id)) {
+            activePledges.delete(pledge.id);
+          } else {
+            activePledges.add(pledge.id);
+          }
+          renderPledges(totalBaseline);
+          updatePledgeSavings(totalBaseline);
+        });
+
+        pledgesContainer.appendChild(item);
+      });
+    }
+
+    function updatePledgeSavings(totalBaseline) {
+      let totalReduction = 0;
+      ACTION_PLEDGES.forEach(p => {
+        if (activePledges.has(p.id)) {
+          totalReduction += p.reduction;
+        }
+      });
+
+      const pledgedTotal = Math.max(0, totalBaseline - totalReduction);
+      document.getElementById("pledged-result").textContent = pledgedTotal.toFixed(2);
+      document.getElementById("savings-val").textContent = `Savings: -${totalReduction.toFixed(2)} t`;
+    }
+
+    function copyShareLink() {
+      const url = window.location.href;
+      navigator.clipboard.writeText(url).then(() => {
+        alert("Results link copied to clipboard!");
+      }).catch(() => {
+        alert("Could not copy link.");
+      });
+    }
+  </script>
+</body>
+</html>
