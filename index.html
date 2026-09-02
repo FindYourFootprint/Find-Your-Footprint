@@ -21,7 +21,7 @@
       --shadow: 0 12px 32px rgba(0, 0, 0, 0.05);
       --badge-bg: #e8f5e9;
       --badge-text: #2e7d32;
-      --select-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%20607263' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      --select-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23607263' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     }
 
     [data-theme="dark"] {
@@ -395,16 +395,16 @@
     }
 
     .progress-meta {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.875rem;
-  color: var(--text-muted);
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  flex: 1;
-  align-self: flex-end; /* Aligns progress text with the bottom of the back button */
-  margin-bottom: 9.2px;
-}
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      flex: 1;
+      align-self: flex-end;
+      margin-bottom: 9.2px;
+    }
 
     .progress {
       height: 8px;
@@ -759,6 +759,40 @@
     }
 
     @media (max-width: 650px) {
+      /* 1. Hide theme button */
+      #theme-btn {
+        display: none;
+      }
+
+      /* 2. Shorten Data Sources button text */
+      #sources-btn {
+        font-size: 0;
+      }
+      #sources-btn::before {
+        content: "Sources";
+        font-size: 0.85rem;
+      }
+
+      /* 3. Change top badge text */
+      .badge {
+        font-size: 0;
+      }
+      .badge::before {
+        content: "Calculate Your Emissions";
+        font-size: 0.8rem;
+      }
+
+      /* 4. Hide question mark during quiz */
+      #info-badge {
+        display: none !important;
+      }
+
+      /* 5. Remove green hover/active interaction on brand logo */
+      .brand:hover {
+        opacity: 1;
+        background: transparent;
+      }
+
       .results-grid {
         grid-template-columns: 1fr;
       }
@@ -1123,352 +1157,343 @@
       },
       {
         cat: "transport",
-        question: "How many miles do you drive per year?",
-        tooltip: "Total vehicle miles traveled scales fuel consumption and wear impacts.",
+        question: "How many miles do you drive per week?",
+        tooltip: "Vehicle miles traveled directly correlates to overall fossil fuel demand.",
         options: [
-          { text: "Under 2000 Miles", value: 0.3 },
-          { text: "2000 to 7000 Miles", value: 1.2 },
-          { text: "7000 to 15000 Miles", value: 2.8 },
-          { text: "Over 15000 Miles", value: 4.8 }
+          { text: "Under 25 Miles per Week", value: 0.3 },
+          { text: "25 to 100 Miles per Week", value: 1.1 },
+          { text: "100 to 250 Miles per Week", value: 2.4 },
+          { text: "Over 250 Miles per Week", value: 4.2 }
         ]
       },
       {
         cat: "transport",
-        question: "What size car do you drive most often?",
-        tooltip: "Larger SUVs and trucks consume more fuel per mile than compact vehicles.",
+        question: "How many people usually ride in your car?",
+        tooltip: "Carpooling splits trip emissions across multiple passengers.",
         options: [
-          { text: "Compact Car or Hatchback", value: 1.0 },
-          { text: "Sedan or Crossover", value: 1.8 },
-          { text: "Large SUV or Pickup Truck", value: 3.2 }
+          { text: "Usually Drive Alone", value: 1.2 },
+          { text: "One Other Passenger", value: 0.6 },
+          { text: "Three or More Passengers", value: 0.3 }
         ]
       },
       {
         cat: "transport",
-        question: "How often do you carpool or ride share?",
-        tooltip: "Sharing trips splits emissions across multiple passengers.",
+        question: "How often do you use public transit or trains?",
+        tooltip: "Shared mass transit reduces congestion and per capita fuel consumption.",
         options: [
-          { text: "Frequently Shared Rides", value: 0.3 },
-          { text: "Occasional Carpooling", value: 0.8 },
-          { text: "Almost Always Drive Alone", value: 1.5 }
+          { text: "Daily or Main Transit Method", value: 0.2 },
+          { text: "Weekly or Occasionally", value: 0.6 },
+          { text: "Rarely or Never", value: 1.2 }
         ]
       },
       {
         cat: "flights",
-        question: "How many short domestic flights do you take yearly?",
-        tooltip: "Short haul flights spend high proportions of fuel in takeoff phases.",
+        question: "How many short round-trip flights (under 3 hours) do you take yearly?",
+        tooltip: "Short flights feature high fuel burn per mile during takeoff and landing.",
         options: [
           { text: "None", value: 0.0 },
-          { text: "1 to 2 Flights", value: 0.6 },
-          { text: "3 to 5 Flights", value: 1.5 },
-          { text: "6 or More Flights", value: 3.0 }
+          { text: "1 to 2 Flights", value: 0.4 },
+          { text: "3 to 5 Flights", value: 1.0 },
+          { text: "More than 5 Flights", value: 2.2 }
         ]
       },
       {
         cat: "flights",
-        question: "How many long international flights do you take yearly?",
-        tooltip: "Long haul flights release significant emissions high in the atmosphere.",
+        question: "How many long-haul flights (over 3 hours) do you take yearly?",
+        tooltip: "Long-haul aviation accounts for a substantial share of total personal emissions.",
         options: [
           { text: "None", value: 0.0 },
-          { text: "1 Flight", value: 1.8 },
-          { text: "2 to 3 Flights", value: 4.2 },
-          { text: "4 or More Flights", value: 7.5 }
+          { text: "1 to 2 Flights", value: 1.6 },
+          { text: "3 to 4 Flights", value: 3.8 },
+          { text: "5 or More Flights", value: 7.2 }
+        ]
+      },
+      {
+        cat: "flights",
+        question: "Do you usually fly economy or premium class?",
+        tooltip: "Premium seats occupy more aircraft space, increasing per-passenger carbon weight.",
+        options: [
+          { text: "Economy Class", value: 1.0 },
+          { text: "Premium Economy", value: 1.3 },
+          { text: "Business or First Class", value: 2.4 }
         ]
       },
       {
         cat: "shopping",
-        question: "How often do you buy new clothing or apparel?",
-        tooltip: "Fast fashion textiles carry intense manufacturing and shipping burdens.",
+        question: "How frequently do you buy new clothes or shoes?",
+        tooltip: "Textile manufacturing involves energy-intensive supply chains and water usage.",
         options: [
           { text: "Rarely or Second Hand First", value: 0.2 },
-          { text: "Monthly Seasonal Purchases", value: 0.8 },
-          { text: "Frequent Fast Fashion Shopping", value: 2.0 }
+          { text: "Monthly Routine Shopping", value: 0.8 },
+          { text: "Weekly Fast Fashion Shopping", value: 1.8 }
         ]
       },
       {
         cat: "shopping",
-        question: "How frequently do you upgrade tech devices?",
-        tooltip: "Electronic hardware manufacturing uses energy dense supply chains.",
+        question: "How often do you purchase new electronics or devices?",
+        tooltip: "Hardware manufacturing and mineral extraction carry high embedded carbon cost.",
         options: [
-          { text: "Keep Devices for 4 or More Years", value: 0.2 },
-          { text: "Upgrade Devices Every 2 Years", value: 0.8 },
-          { text: "Always Get Latest Models Yearly", value: 1.8 }
+          { text: "Keep Devices for 3+ Years", value: 0.2 },
+          { text: "Upgrade Devices Every 1 to 2 Years", value: 0.7 },
+          { text: "Buy Latest Devices Continuously", value: 1.5 }
         ]
       },
       {
         cat: "shopping",
-        question: "How often do you use fast express delivery options?",
-        tooltip: "Expedited shipping often prevents efficient delivery vehicle routing.",
+        question: "How often do you order items with express shipping?",
+        tooltip: "Rapid delivery relies on dedicated air cargo and non-optimized freight routing.",
         options: [
-          { text: "Standard Shipping Only", value: 0.2 },
-          { text: "Occasional Express Orders", value: 0.6 },
-          { text: "Constant Express Deliveries", value: 1.4 }
-        ]
-      },
-      {
-        cat: "shopping",
-        question: "What is your main strategy for consumer purchases?",
-        tooltip: "Minimalism and repair culture directly prevent manufacturing emissions.",
-        options: [
-          { text: "Minimalist Buy Only Essentials", value: 0.3 },
-          { text: "Moderate Consumer Usage", value: 1.0 },
-          { text: "Frequent Shopping and Consumption", value: 2.2 }
+          { text: "Rarely or Choose Standard Ground", value: 0.1 },
+          { text: "Occasional Express Orders", value: 0.4 },
+          { text: "Frequent Next Day Express Orders", value: 0.9 }
         ]
       },
       {
         cat: "waste",
-        question: "How regularly do you recycle common materials?",
-        tooltip: "Recycling reduces raw material extraction and energy inputs.",
+        question: "Do you regularly recycle paper, metals, and plastic?",
+        tooltip: "Recycling reduces raw material extraction and industrial processing loads.",
         options: [
-          { text: "Always Recycle All Paper Metals Plastics", value: 0.2 },
-          { text: "Recycle Some Materials", value: 0.6 },
-          { text: "Rarely or Never Recycle", value: 1.2 }
+          { text: "Recycle Everything Available", value: 0.1 },
+          { text: "Recycle Main Items Only", value: 0.3 },
+          { text: "Do Not Recycle", value: 0.7 }
         ]
       },
       {
         cat: "waste",
-        question: "Do you compost kitchen scraps and yard waste?",
-        tooltip: "Composting diverts organic material away from methane producing landfills.",
+        question: "Do you compost organic food waste?",
+        tooltip: "Composting keeps organic material out of landfills, avoiding anaerobic methane.",
         options: [
-          { text: "Yes Dedicated Composting", value: 0.1 },
-          { text: "Occasionally Compost", value: 0.4 },
-          { text: "No All Waste to Trash", value: 0.9 }
+          { text: "Yes Regular Composting", value: 0.0 },
+          { text: "No Organic Composting", value: 0.4 }
         ]
       }
     ];
 
     const ACTION_PLEDGES = [
-      { id: "pledge_heatpump", title: "Install Heat Pump or Green Tariff", reduction: 1.2 },
-      { id: "pledge_meatless", title: "Adopt Meatless Days Weekly", reduction: 0.8 },
-      { id: "pledge_ev", title: "Transition Commute to EV or Transit", reduction: 1.5 },
-      { id: "pledge_flight", title: "Replace One Short Flight with Train", reduction: 0.5 },
-      { id: "pledge_compost", title: "Compost Household Scraps", reduction: 0.3 }
+      { id: "p1", title: "Switch to 100% Green Power Electricity Plan", impact: 0.8, cat: "home" },
+      { id: "p2", title: "Adopt Meat-Free Meals 3 Days a Week", impact: 0.5, cat: "diet" },
+      { id: "p3", title: "Replace 1 Car Trip Weekly with Transit or Walking", impact: 0.4, cat: "transport" },
+      { id: "p4", title: "Replace 1 Long-Haul Flight with Local Travel", impact: 1.2, cat: "flights" },
+      { id: "p5", title: "Buy Clothes Second-Hand or Vintage First", impact: 0.3, cat: "shopping" },
+      { id: "p6", title: "Start Household Organic Waste Composting", impact: 0.2, cat: "waste" }
     ];
 
-    // State Variables
+    // APP STATE
     let currentStep = 0;
-    let answers = {};
-    let activePledges = new Set();
-    let gridMultiplier = 1.0;
+    let selectedAnswers = new Array(QUESTIONS.length).fill(null);
+    let selectedPledges = new Set();
+    let currentGridMultiplier = 1.0;
 
-    // DOM Elements
+    // DOM ELEMENTS
     const landingView = document.getElementById("landing-view");
     const quizView = document.getElementById("quiz-view");
     const resultsView = document.getElementById("results-view");
-    
     const startBtn = document.getElementById("start-btn");
-    const brandHome = document.getElementById("brand-home");
-    const regionSelect = document.getElementById("region-select");
     const backBtn = document.getElementById("back-btn");
     const nextBtn = document.getElementById("next-button");
     const skipBtn = document.getElementById("skip-button");
     const restartBtn = document.getElementById("restart-btn");
     const shareBtn = document.getElementById("share-btn");
-    
-    const stepCounter = document.getElementById("step-counter");
-    const progressBar = document.getElementById("progress-bar");
-    const questionText = document.getElementById("question");
-    const infoBadge = document.getElementById("info-badge");
-    const optionsContainer = document.getElementById("options");
-    
     const sourcesBtn = document.getElementById("sources-btn");
+    const themeBtn = document.getElementById("theme-btn");
+    const brandHome = document.getElementById("brand-home");
     const sourcesModal = document.getElementById("sources-modal");
     const closeModalBtn = document.getElementById("close-modal-btn");
-    const themeBtn = document.getElementById("theme-btn");
+    const regionSelect = document.getElementById("region-select");
 
-    // Theme toggle
-    themeBtn.addEventListener("click", () => {
-      const currentTheme = document.documentElement.getAttribute("data-theme");
-      const nextTheme = currentTheme === "dark" ? "light" : "dark";
-      document.documentElement.setAttribute("data-theme", nextTheme);
-      themeBtn.textContent = nextTheme === "dark" ? "Light Mode" : "Dark Mode";
-    });
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const stepCounterEl = document.getElementById("step-counter");
+    const progressBarEl = document.getElementById("progress-bar");
+    const infoBadgeEl = document.getElementById("info-badge");
 
-    // Modal behavior
+    // NAVIGATION & INITIALIZATION
+    startBtn.addEventListener("click", startQuiz);
+    backBtn.addEventListener("click", prevQuestion);
+    nextBtn.addEventListener("click", nextQuestion);
+    skipBtn.addEventListener("click", skipQuestion);
+    restartBtn.addEventListener("click", resetQuiz);
+    shareBtn.addEventListener("click", shareResults);
+    brandHome.addEventListener("click", goHome);
+
     sourcesBtn.addEventListener("click", () => sourcesModal.classList.add("active"));
     closeModalBtn.addEventListener("click", () => sourcesModal.classList.remove("active"));
     sourcesModal.addEventListener("click", (e) => {
       if (e.target === sourcesModal) sourcesModal.classList.remove("active");
     });
 
-    // Navigation handlers
-    brandHome.addEventListener("click", resetToHome);
-    startBtn.addEventListener("click", startQuiz);
-    backBtn.addEventListener("click", goToPreviousQuestion);
-    nextBtn.addEventListener("click", goToNextQuestion);
-    skipBtn.addEventListener("click", skipQuestion);
-    restartBtn.addEventListener("click", startQuiz);
-    shareBtn.addEventListener("click", copyShareLink);
+    themeBtn.addEventListener("click", () => {
+      const currentTheme = document.documentElement.getAttribute("data-theme");
+      const nextTheme = currentTheme === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", nextTheme);
+      themeBtn.innerText = nextTheme === "dark" ? "Light Mode" : "Dark Mode";
+    });
 
-    function resetToHome() {
-      currentStep = 0;
-      answers = {};
-      activePledges.clear();
+    regionSelect.addEventListener("change", (e) => {
+      currentGridMultiplier = parseFloat(e.target.value);
+    });
+
+    function goHome() {
       quizView.style.display = "none";
       resultsView.style.display = "none";
       landingView.style.display = "block";
     }
 
     function startQuiz() {
-      gridMultiplier = parseFloat(regionSelect.value) || 1.0;
-      currentStep = 0;
-      answers = {};
-      activePledges.clear();
       landingView.style.display = "none";
       resultsView.style.display = "none";
       quizView.style.display = "block";
+      currentStep = 0;
       renderQuestion();
     }
 
     function renderQuestion() {
       const q = QUESTIONS[currentStep];
-      stepCounter.textContent = `${currentStep + 1} of ${QUESTIONS.length}`;
-      progressBar.style.width = `${((currentStep + 1) / QUESTIONS.length) * 100}%`;
-      
+      questionEl.innerText = q.question;
+      infoBadgeEl.setAttribute("data-tooltip", q.tooltip);
+      stepCounterEl.innerText = `${currentStep + 1} of ${QUESTIONS.length}`;
+      progressBarEl.style.width = `${((currentStep + 1) / QUESTIONS.length) * 100}%`;
+
       backBtn.disabled = currentStep === 0;
+      optionsEl.innerHTML = "";
 
-      questionText.textContent = q.question;
-      infoBadge.setAttribute("data-tooltip", q.tooltip);
-
-      optionsContainer.innerHTML = "";
-      nextBtn.disabled = answers[currentStep] === undefined;
-
-      q.options.forEach((opt, idx) => {
+      q.options.forEach((opt) => {
         const btn = document.createElement("button");
         btn.className = "option";
-        if (answers[currentStep] && answers[currentStep].value === opt.value) {
+        if (selectedAnswers[currentStep] === opt.value) {
           btn.classList.add("selected");
         }
-        btn.textContent = opt.text;
-        btn.addEventListener("click", () => selectOption(opt, idx));
-        optionsContainer.appendChild(btn);
+        btn.innerText = opt.text;
+        btn.addEventListener("click", () => selectOption(opt.value, btn));
+        optionsEl.appendChild(btn);
       });
+
+      nextBtn.disabled = selectedAnswers[currentStep] === null;
     }
 
-    function selectOption(opt, idx) {
-      answers[currentStep] = { value: opt.value, cat: QUESTIONS[currentStep].cat };
-      const optionBtns = optionsContainer.querySelectorAll(".option");
-      optionBtns.forEach((btn, i) => {
-        btn.classList.toggle("selected", i === idx);
-      });
+    function selectOption(val, optionBtn) {
+      selectedAnswers[currentStep] = val;
+      const allOptions = optionsEl.querySelectorAll(".option");
+      allOptions.forEach((b) => b.classList.remove("selected"));
+      optionBtn.classList.add("selected");
       nextBtn.disabled = false;
     }
 
-    function goToNextQuestion() {
+    function nextQuestion() {
       if (currentStep < QUESTIONS.length - 1) {
         currentStep++;
         renderQuestion();
       } else {
-        calculateResults();
+        finishQuiz();
       }
     }
 
-    function goToPreviousQuestion() {
+    function skipQuestion() {
+      selectedAnswers[currentStep] = 0;
+      nextQuestion();
+    }
+
+    function prevQuestion() {
       if (currentStep > 0) {
         currentStep--;
         renderQuestion();
       }
     }
 
-    function skipQuestion() {
-      if (!answers[currentStep]) {
-        answers[currentStep] = { value: 0, cat: QUESTIONS[currentStep].cat };
-      }
-      goToNextQuestion();
-    }
-
-    function calculateResults() {
-      const catTotals = {
-        home: 0,
-        diet: 0,
-        transport: 0,
-        flights: 0,
-        shopping: 0,
-        waste: 0
-      };
-
-      Object.values(answers).forEach(ans => {
-        if (ans && ans.cat) {
-          catTotals[ans.cat] += ans.value;
-        }
-      });
-
-      // Apply regional grid multiplier to home energy
-      catTotals.home *= gridMultiplier;
-
-      const totalBaseline = Object.values(catTotals).reduce((a, b) => a + b, 0);
-
+    function finishQuiz() {
       quizView.style.display = "none";
       resultsView.style.display = "block";
-
-      document.getElementById("total-result").textContent = totalBaseline.toFixed(2);
-      
-      // Category Breakdown Bars
-      const maxCatVal = Math.max(...Object.values(catTotals), 1);
-      Object.keys(catTotals).forEach(cat => {
-        const val = catTotals[cat];
-        document.getElementById(`${cat}-val`).textContent = `${val.toFixed(2)} t`;
-        document.getElementById(`${cat}-bar`).style.width = `${(val / maxCatVal) * 100}%`;
-      });
-
-      // User Benchmark Bar
-      const userBenchWidth = Math.min((totalBaseline / 20) * 100, 100);
-      document.getElementById("bench-user").style.width = `${userBenchWidth}%`;
-      document.getElementById("bench-user-val").textContent = `${totalBaseline.toFixed(1)} t`;
-
-      renderPledges(totalBaseline);
-      updatePledgeSavings(totalBaseline);
+      calculateAndRenderResults();
     }
 
-    function renderPledges(totalBaseline) {
-      const pledgesContainer = document.getElementById("pledges-container");
-      pledgesContainer.innerHTML = "";
+    function calculateAndRenderResults() {
+      let totals = { home: 0, diet: 0, transport: 0, flights: 0, shopping: 0, waste: 0 };
 
-      ACTION_PLEDGES.forEach(pledge => {
-        const item = document.createElement("div");
-        item.className = `pledge-item ${activePledges.has(pledge.id) ? "active" : ""}`;
-        
-        item.innerHTML = `
+      QUESTIONS.forEach((q, idx) => {
+        const val = selectedAnswers[idx] || 0;
+        totals[q.cat] += val;
+      });
+
+      // Apply grid intensity regional multiplier to Home energy category
+      totals.home *= currentGridMultiplier;
+
+      const grandTotal = Object.values(totals).reduce((a, b) => a + b, 0);
+
+      document.getElementById("total-result").innerText = grandTotal.toFixed(2);
+      document.getElementById("home-val").innerText = `${totals.home.toFixed(2)} t`;
+      document.getElementById("diet-val").innerText = `${totals.diet.toFixed(2)} t`;
+      document.getElementById("transport-val").innerText = `${totals.transport.toFixed(2)} t`;
+      document.getElementById("flights-val").innerText = `${totals.flights.toFixed(2)} t`;
+      document.getElementById("shopping-val").innerText = `${totals.shopping.toFixed(2)} t`;
+      document.getElementById("waste-val").innerText = `${totals.waste.toFixed(2)} t`;
+
+      const maxCat = Math.max(...Object.values(totals), 1);
+      document.getElementById("home-bar").style.width = `${(totals.home / maxCat) * 100}%`;
+      document.getElementById("diet-bar").style.width = `${(totals.diet / maxCat) * 100}%`;
+      document.getElementById("transport-bar").style.width = `${(totals.transport / maxCat) * 100}%`;
+      document.getElementById("flights-bar").style.width = `${(totals.flights / maxCat) * 100}%`;
+      document.getElementById("shopping-bar").style.width = `${(totals.shopping / maxCat) * 100}%`;
+      document.getElementById("waste-bar").style.width = `${(totals.waste / maxCat) * 100}%`;
+
+      const userBenchWidth = Math.min((grandTotal / 20) * 100, 100);
+      document.getElementById("bench-user").style.width = `${userBenchWidth}%`;
+      document.getElementById("bench-user-val").innerText = `${grandTotal.toFixed(1)} t`;
+
+      renderPledges(grandTotal);
+    }
+
+    function renderPledges(baseTotal) {
+      const container = document.getElementById("pledges-container");
+      container.innerHTML = "";
+
+      ACTION_PLEDGES.forEach((pledge) => {
+        const div = document.createElement("div");
+        div.className = `pledge-item ${selectedPledges.has(pledge.id) ? "active" : ""}`;
+        div.innerHTML = `
           <div class="pledge-info">
             <div class="pledge-title">${pledge.title}</div>
-            <div class="pledge-impact">-${pledge.reduction} Tons CO₂e/yr</div>
+            <div class="pledge-impact">-${pledge.impact} tons CO₂e / year</div>
           </div>
-          <div class="checkbox">${activePledges.has(pledge.id) ? "✓" : ""}</div>
+          <div class="checkbox">${selectedPledges.has(pledge.id) ? "✓" : ""}</div>
         `;
 
-        item.addEventListener("click", () => {
-          if (activePledges.has(pledge.id)) {
-            activePledges.delete(pledge.id);
+        div.addEventListener("click", () => {
+          if (selectedPledges.has(pledge.id)) {
+            selectedPledges.delete(pledge.id);
           } else {
-            activePledges.add(pledge.id);
+            selectedPledges.add(pledge.id);
           }
-          renderPledges(totalBaseline);
-          updatePledgeSavings(totalBaseline);
+          renderPledges(baseTotal);
         });
 
-        pledgesContainer.appendChild(item);
+        container.appendChild(div);
       });
+
+      let totalSavings = 0;
+      ACTION_PLEDGES.forEach((p) => {
+        if (selectedPledges.has(p.id)) totalSavings += p.impact;
+      });
+
+      const pledgedFinal = Math.max(0, baseTotal - totalSavings);
+      document.getElementById("pledged-result").innerText = pledgedFinal.toFixed(2);
+      document.getElementById("savings-val").innerText = `Savings: -${totalSavings.toFixed(2)} t`;
     }
 
-    function updatePledgeSavings(totalBaseline) {
-      let totalReduction = 0;
-      ACTION_PLEDGES.forEach(p => {
-        if (activePledges.has(p.id)) {
-          totalReduction += p.reduction;
-        }
-      });
-
-      const pledgedTotal = Math.max(0, totalBaseline - totalReduction);
-      document.getElementById("pledged-result").textContent = pledgedTotal.toFixed(2);
-      document.getElementById("savings-val").textContent = `Savings: -${totalReduction.toFixed(2)} t`;
+    function resetQuiz() {
+      selectedAnswers = new Array(QUESTIONS.length).fill(null);
+      selectedPledges.clear();
+      goHome();
     }
 
-    function copyShareLink() {
-      const url = window.location.href;
-      navigator.clipboard.writeText(url).then(() => {
-        alert("Results link copied to clipboard!");
-      }).catch(() => {
-        alert("Could not copy link.");
-      });
+    function shareResults() {
+      const score = document.getElementById("total-result").innerText;
+      const shareText = `My estimated personal carbon footprint is ${score} tons of CO₂e/year. Calculate your emissions impact here:`;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(`${shareText} ${window.location.href}`);
+        alert("Results summary link copied to clipboard!");
+      } else {
+        alert(shareText);
+      }
     }
   </script>
 </body>
