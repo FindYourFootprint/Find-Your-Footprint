@@ -133,10 +133,12 @@
     opacity: 0.5;
   }
 
+  /* Fixed Vector Effect Ensures Circles Remain Perfect Circles on All Aspect Ratios */
   .vis-trend-point {
     fill: var(--surface);
     stroke: var(--primary);
     stroke-width: 2.5;
+    vector-effect: non-scaling-stroke;
   }
 
   .vis-mobile-labels {
@@ -189,6 +191,16 @@
     .vis-mobile-view {
       display: flex;
     }
+    .vis-header-text {
+      display: none;
+    }
+    .vis-mobile-header-text {
+      display: inline !important;
+    }
+  }
+
+  .vis-mobile-header-text {
+    display: none;
   }
 </style>
 
@@ -196,7 +208,7 @@
   document.addEventListener("DOMContentLoaded", () => {
     const DATASETS = {
       pop: {
-        title: "Global Human Population (10,000 BCE – Present)",
+        title: "Global Population Growth",
         desc: "Human population remained below 300 million for thousands of years until rapid exponential growth exploded during the Industrial Revolution.",
         unit: "M",
         source: "Our World in Data / UN Population Division",
@@ -212,7 +224,7 @@
         ]
       },
       co2: {
-        title: "Atmospheric CO₂ Concentrations (10,000 BCE – Present)",
+        title: "CO₂ Concentration",
         desc: "Ice core samples show atmospheric CO₂ was stable around 260–280 ppm for thousands of years before surging past 420 ppm due to fossil fuel combustion.",
         unit: " ppm",
         source: "NOAA / EPICA Ice Core Data",
@@ -228,7 +240,7 @@
         ]
       },
       emissions: {
-        title: "Annual Global CO₂ Emissions (1800 – Present)",
+        title: "Annual Global CO₂ Emissions",
         desc: "Annual carbon dioxide emissions from industrial activity, land use, and fossil energy production in billion metric tons (GtCO₂).",
         unit: " Gt",
         source: "Global Carbon Project",
@@ -244,7 +256,7 @@
         ]
       },
       temp: {
-        title: "Global Surface Temperature Anomaly (1880 – Present)",
+        title: "Global Surface Temperature",
         desc: "Global mean surface temperature deviation (°C) relative to the 1850–1900 pre-industrial baseline average.",
         unit: "°C",
         source: "NASA Goddard Institute for Space Studies",
@@ -260,7 +272,7 @@
         ]
       },
       energy: {
-        title: "Primary Energy Consumption Mix (1800 – Present)",
+        title: "Global Primary Energy Demand",
         desc: "Shift in dominant global energy sources over time measured in Terawatt-hours (TWh) equivalent.",
         unit: " TWh",
         source: "Vaclav Smil / Energy Institute Statistical Review",
@@ -283,17 +295,18 @@
       visSection.className = "card visualizer-card";
       visSection.innerHTML = `
         <div class="section-title" style="margin-bottom: 0;">
-          <span>Historical Human & Environmental Data</span>
+          <span class="vis-header-text">Historical Human & Environmental Data</span>
+          <span class="vis-mobile-header-text">Human & Environmental Data</span>
         </div>
         
         <div class="visualizer-controls">
-          <label class="field-label" for="vis-selector">Select Historical Visualizer Dataset:</label>
+          <label class="field-label" for="vis-selector">Select Visualizer Dataset:</label>
           <select id="vis-selector" class="visualizer-select">
-            <option value="pop">Global Human Population Growth (10,000 BCE - Present)</option>
-            <option value="co2">Atmospheric CO₂ Concentrations (10,000 BCE - Present)</option>
-            <option value="emissions">Annual Global CO₂ Emissions (1800 - Present)</option>
-            <option value="temp">Global Surface Temperature Anomaly (1880 - Present)</option>
-            <option value="energy">Global Primary Energy Demand (1800 - Present)</option>
+            <option value="pop">Global Population Growth</option>
+            <option value="co2">CO₂ Concentration</option>
+            <option value="emissions">Annual Global CO₂ Emissions</option>
+            <option value="temp">Global Surface Temperature</option>
+            <option value="energy">Global Primary Energy Demand</option>
           </select>
         </div>
 
@@ -380,7 +393,6 @@
         dataset.data.forEach((item, i) => {
           const x = (i / (pointsCount - 1)) * svgWidth;
           let normVal = isTemp ? (item.val - minVal) / (maxVal - minVal) : item.val / maxVal;
-          // Invert y because SVG y=0 is at top
           const y = svgHeight - (normVal * (svgHeight - 20) + 10);
 
           if (i === 0) {
@@ -395,7 +407,8 @@
             areaD += ` L ${x} ${svgHeight} Z`;
           }
 
-          pointsHTML += `<circle class="vis-trend-point" cx="${x}" cy="${y}" r="4" />`;
+          // Uses r="3.5" with non-scaling stroke styling so points remain perfect non-distorted circles
+          pointsHTML += `<circle class="vis-trend-point" cx="${x}" cy="${y}" r="3.5" />`;
         });
 
         svgLine.setAttribute("d", pathD);
