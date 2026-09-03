@@ -1,4 +1,302 @@
 <!DOCTYPE html>
+<style>
+  /* Historical Visualizer Section Styling */
+  .visualizer-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .visualizer-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .visualizer-select {
+    width: 100%;
+    padding: 0.85rem 2.5rem 0.85rem 1rem;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    background-color: var(--surface);
+    background-image: var(--select-icon);
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1rem;
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+  }
+
+  .visualizer-select:focus {
+    border-color: var(--primary);
+  }
+
+  .vis-description {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .vis-chart-container {
+    background: var(--background);
+    border-radius: 12px;
+    padding: 1.5rem 1.25rem 1rem 1.25rem;
+    border: 1px solid var(--border);
+  }
+
+  .vis-bars {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    height: 220px;
+    gap: 8px;
+    padding-top: 2rem;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .vis-bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    justify-content: flex-end;
+    position: relative;
+  }
+
+  .vis-bar-col:hover .vis-tooltip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-4px);
+  }
+
+  .vis-bar {
+    width: 100%;
+    max-width: 48px;
+    background: var(--primary);
+    border-radius: 6px 6px 0 0;
+    transition: height 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    min-height: 4px;
+  }
+
+  .vis-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .vis-tooltip {
+    position: absolute;
+    top: -35px;
+    left: 50%;
+    transform: translateX(-50%) translateY(0);
+    background: var(--text-main);
+    color: var(--surface);
+    padding: 0.35rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 10;
+    box-shadow: var(--shadow);
+  }
+
+  .vis-source-note {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-align: right;
+    margin-top: 0.75rem;
+    font-style: italic;
+  }
+
+  @media (max-width: 650px) {
+    .vis-bars {
+      height: 180px;
+      gap: 4px;
+    }
+    .vis-label {
+      font-size: 0.65rem;
+      transform: rotate(-30deg);
+      margin-top: 0.75rem;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const DATASETS = {
+      pop: {
+        title: "Global Human Population (10,000 BCE – Present)",
+        desc: "Human population remained below 300 million for thousands of years until rapid exponential growth exploded during the Industrial Revolution.",
+        unit: "M",
+        source: "Our World in Data / UN Population Division",
+        data: [
+          { label: "10,000 BCE", val: 4, display: "4M" },
+          { label: "5,000 BCE", val: 5, display: "5M" },
+          { label: "1 CE", val: 190, display: "190M" },
+          { label: "1000 CE", val: 254, display: "254M" },
+          { label: "1800 CE", val: 980, display: "980M" },
+          { label: "1950 CE", val: 2500, display: "2.5B" },
+          { label: "2026", val: 8100, display: "8.1B" }
+        ]
+      },
+      co2: {
+        title: "Atmospheric CO₂ Concentrations (10,000 BCE – Present)",
+        desc: "Ice core samples show atmospheric CO₂ was stable around 260–280 ppm for thousands of years before surging past 420 ppm due to fossil fuel combustion.",
+        unit: " ppm",
+        source: "NOAA / EPICA Ice Core Data",
+        data: [
+          { label: "10,000 BCE", val: 265, display: "265 ppm" },
+          { label: "5,000 BCE", val: 260, display: "260 ppm" },
+          { label: "1 CE", val: 268, display: "268 ppm" },
+          { label: "1750 CE", val: 280, display: "280 ppm" },
+          { label: "1950 CE", val: 310, display: "310 ppm" },
+          { label: "2000 CE", val: 369, display: "369 ppm" },
+          { label: "2026", val: 426, display: "426 ppm" }
+        ]
+      },
+      emissions: {
+        title: "Annual Global CO₂ Emissions (1800 – Present)",
+        desc: "Annual carbon dioxide emissions from industrial activity, land use, and fossil energy production in billion metric tons (GtCO₂).",
+        unit: " Gt",
+        source: "Global Carbon Project",
+        data: [
+          { label: "1800", val: 0.03, display: "0.03 Gt" },
+          { label: "1850", val: 0.2, display: "0.20 Gt" },
+          { label: "1900", val: 2.0, display: "2.0 Gt" },
+          { label: "1950", val: 6.0, display: "6.0 Gt" },
+          { label: "1990", val: 22.7, display: "22.7 Gt" },
+          { label: "2010", val: 33.3, display: "33.3 Gt" },
+          { label: "2026", val: 37.5, display: "37.5 Gt" }
+        ]
+      },
+      temp: {
+        title: "Global Surface Temperature Anomaly (1880 – Present)",
+        desc: "Global mean surface temperature deviation (°C) relative to the 1850–1900 pre-industrial baseline average.",
+        unit: "°C",
+        source: "NASA Goddard Institute for Space Studies",
+        data: [
+          { label: "1880", val: -0.16, display: "-0.16°C" },
+          { label: "1920", val: -0.27, display: "-0.27°C" },
+          { label: "1960", val: -0.03, display: "-0.03°C" },
+          { label: "1980", val: 0.26, display: "+0.26°C" },
+          { label: "2000", val: 0.52, display: "+0.52°C" },
+          { label: "2015", val: 0.90, display: "+0.90°C" },
+          { label: "2026", val: 1.35, display: "+1.35°C" }
+        ]
+      },
+      energy: {
+        title: "Primary Energy Consumption Mix (1800 – Present)",
+        desc: "Shift in dominant global energy sources over time measured in Terawatt-hours (TWh) equivalent.",
+        unit: " TWh",
+        source: "Vaclav Smil / Energy Institute Statistical Review",
+        data: [
+          { label: "1800 (Wood)", val: 5600, display: "5.6k TWh" },
+          { label: "1850 (Coal)", val: 7000, display: "7.0k TWh" },
+          { label: "1900 (Coal/Oil)", val: 12000, display: "12k TWh" },
+          { label: "1950 (Fossil)", val: 28000, display: "28k TWh" },
+          { label: "1990 (Fossil/Nuc)", val: 102000, display: "102k TWh" },
+          { label: "2010 (Mixed)", val: 145000, display: "145k TWh" },
+          { label: "2026 (Renewables)", val: 168000, display: "168k TWh" }
+        ]
+      }
+    };
+
+    // Inject visualizer section directly below the resources grid on home page
+    const resourcesCard = document.querySelector(".home-resources");
+    if (resourcesCard) {
+      const visSection = document.createElement("div");
+      visSection.className = "card visualizer-card";
+      visSection.innerHTML = `
+        <div class="section-title" style="margin-bottom: 0;">
+          <span>Historical Human & Environmental Data</span>
+        </div>
+        
+        <div class="visualizer-controls">
+          <label class="field-label" for="vis-selector">Select Historical Visualizer Dataset:</label>
+          <select id="vis-selector" class="visualizer-select">
+            <option value="pop">Global Human Population Growth (10,000 BCE - Present)</option>
+            <option value="co2">Atmospheric CO₂ Concentrations (10,000 BCE - Present)</option>
+            <option value="emissions">Annual Global CO₂ Emissions (1800 - Present)</option>
+            <option value="temp">Global Surface Temperature Anomaly (1880 - Present)</option>
+            <option value="energy">Global Primary Energy Demand (1800 - Present)</option>
+          </select>
+        </div>
+
+        <p class="vis-description" id="vis-desc"></p>
+
+        <div class="vis-chart-container">
+          <div class="vis-bars" id="vis-bars"></div>
+          <div class="vis-source-note" id="vis-source"></div>
+        </div>
+      `;
+
+      resourcesCard.after(visSection);
+
+      const selector = document.getElementById("vis-selector");
+      const descEl = document.getElementById("vis-desc");
+      const barsContainer = document.getElementById("vis-bars");
+      const sourceEl = document.getElementById("vis-source");
+
+      function updateChart(key) {
+        const dataset = DATASETS[key];
+        descEl.textContent = dataset.desc;
+        sourceEl.textContent = `Source: ${dataset.source}`;
+        barsContainer.innerHTML = "";
+
+        // Handle temperature anomaly offset mapping
+        const isTemp = key === "temp";
+        let minVal = 0;
+        let maxVal = Math.max(...dataset.data.map(d => d.val));
+        
+        if (isTemp) {
+          minVal = -0.5;
+          maxVal = 1.5;
+        }
+
+        dataset.data.forEach(item => {
+          const col = document.createElement("div");
+          col.className = "vis-bar-col";
+
+          let pct = 0;
+          if (isTemp) {
+            pct = ((item.val - minVal) / (maxVal - minVal)) * 100;
+          } else {
+            pct = (item.val / maxVal) * 100;
+          }
+
+          col.innerHTML = `
+            <div class="vis-tooltip">${item.display}</div>
+            <div class="vis-bar" style="height: 0%;"></div>
+            <div class="vis-label">${item.label}</div>
+          `;
+
+          barsContainer.appendChild(col);
+
+          // Trigger smooth bar animation after render
+          setTimeout(() => {
+            const bar = col.querySelector(".vis-bar");
+            if (bar) bar.style.height = `${Math.max(pct, 3)}%`;
+          }, 50);
+        });
+      }
+
+      selector.addEventListener("change", (e) => updateChart(e.target.value));
+      updateChart("pop");
+    }
+  });
+</script>
 <html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
