@@ -99,18 +99,37 @@
   white-space: nowrap;
 }
 
-/* Mobile View: Trend Line SVG Layout */
+/* Mobile View: Trend Line SVG Layout with Axis */
 .vis-mobile-view {
   display: none;
   flex-direction: column;
   width: 100%;
 }
 
-.vis-svg-wrapper {
+.vis-mobile-chart-row {
+  display: flex;
   width: 100%;
   height: 180px;
-  position: relative;
   border-bottom: 2px solid var(--border);
+}
+
+.vis-y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-right: 0.5rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-align: right;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.vis-svg-wrapper {
+  flex: 1;
+  height: 100%;
+  position: relative;
 }
 
 .vis-trend-svg {
@@ -131,6 +150,12 @@
 .vis-trend-area {
   fill: var(--primary-light);
   opacity: 0.5;
+}
+
+.vis-grid-line {
+  stroke: var(--border);
+  stroke-width: 1;
+  stroke-dasharray: 4, 4;
 }
 
 .vis-mobile-labels {
@@ -310,11 +335,21 @@
           </div>
 
           <div class="vis-mobile-view">
-            <div class="vis-svg-wrapper">
-              <svg class="vis-trend-svg" viewBox="0 0 300 150" preserveAspectRatio="none">
-                <path class="vis-trend-area" id="vis-svg-area" d="" />
-                <path class="vis-trend-line" id="vis-svg-line" d="" />
-              </svg>
+            <div class="vis-mobile-chart-row">
+              <div class="vis-y-axis" id="vis-y-axis">
+                <span id="vis-y-max"></span>
+                <span id="vis-y-mid"></span>
+                <span id="vis-y-min"></span>
+              </div>
+              <div class="vis-svg-wrapper">
+                <svg class="vis-trend-svg" viewBox="0 0 300 150" preserveAspectRatio="none">
+                  <line x1="0" y1="10" x2="300" y2="10" class="vis-grid-line" />
+                  <line x1="0" y1="75" x2="300" y2="75" class="vis-grid-line" />
+                  <line x1="0" y1="140" x2="300" y2="140" class="vis-grid-line" />
+                  <path class="vis-trend-area" id="vis-svg-area" d="" />
+                  <path class="vis-trend-line" id="vis-svg-line" d="" />
+                </svg>
+              </div>
             </div>
             <div class="vis-mobile-labels" id="vis-mobile-labels"></div>
           </div>
@@ -332,6 +367,18 @@
       const svgLine = document.getElementById("vis-svg-line");
       const svgArea = document.getElementById("vis-svg-area");
       const mobileLabelsContainer = document.getElementById("vis-mobile-labels");
+      const yMaxEl = document.getElementById("vis-y-max");
+      const yMidEl = document.getElementById("vis-y-mid");
+      const yMinEl = document.getElementById("vis-y-min");
+
+      function formatYLabel(val, key) {
+        if (key === "pop") return val >= 1000 ? `${(val / 1000).toFixed(1)}B` : `${Math.round(val)}M`;
+        if (key === "co2") return `${Math.round(val)}`;
+        if (key === "emissions") return `${val.toFixed(1)}Gt`;
+        if (key === "temp") return `${val > 0 ? '+' : ''}${val.toFixed(2)}°C`;
+        if (key === "energy") return `${Math.round(val / 1000)}k`;
+        return val;
+      }
 
       function updateChart(key) {
         const dataset = DATASETS[key];
@@ -349,6 +396,12 @@
           minVal = -0.5;
           maxVal = 1.5;
         }
+
+        // Calculate Y-Axis Label Data
+        const midVal = minVal + (maxVal - minVal) / 2;
+        yMaxEl.textContent = formatYLabel(maxVal, key);
+        yMidEl.textContent = formatYLabel(midVal, key);
+        yMinEl.textContent = formatYLabel(minVal, key);
 
         // --- 1. RENDER DESKTOP BARS ---
         dataset.data.forEach(item => {
