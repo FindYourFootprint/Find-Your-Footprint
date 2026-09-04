@@ -1,207 +1,199 @@
 <!DOCTYPE html>
 <style>
-  /* Historical Visualizer Section Styling */
-  .visualizer-card {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
+/* Historical Visualizer Section Styling */
+.visualizer-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
 
-  .visualizer-controls {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
+.visualizer-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
 
-  .visualizer-select {
-    width: 100%;
-    padding: 0.85rem 2.5rem 0.85rem 1rem;
-    border-radius: 12px;
-    border: 2px solid var(--border);
-    background-color: var(--surface);
-    background-image: var(--select-icon);
-    background-repeat: no-repeat;
-    background-position: right 1rem center;
-    background-size: 1rem;
-    color: var(--text-main);
-    font-family: inherit;
-    font-size: 1rem;
-    font-weight: 600;
-    outline: none;
-    -webkit-appearance: none;
-    appearance: none;
-    cursor: pointer;
-  }
+.visualizer-select {
+  width: 100%;
+  padding: 0.85rem 2.5rem 0.85rem 1rem;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background-color: var(--surface);
+  background-image: var(--select-icon);
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1rem;
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
 
-  .visualizer-select:focus {
-    border-color: var(--primary);
-  }
+.visualizer-select:focus {
+  border-color: var(--primary);
+}
 
-  .vis-description {
-    font-size: 0.9rem;
-    color: var(--text-muted);
-    line-height: 1.5;
-  }
+.vis-description {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
 
-  .vis-chart-container {
-    background: var(--background);
-    border-radius: 12px;
-    padding: 1.5rem 1.25rem 1.25rem 1.25rem;
-    border: 1px solid var(--border);
-  }
+.vis-chart-container {
+  background: var(--background);
+  border-radius: 12px;
+  padding: 1.5rem 1.25rem 1.25rem 1.25rem;
+  border: 1px solid var(--border);
+}
 
-  /* Desktop View: Bar Chart Layout */
+/* Desktop View: Bar Chart Layout */
+.vis-desktop-view {
+  display: flex;
+  flex-direction: column;
+}
+
+.vis-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 220px;
+  gap: 8px;
+  padding-top: 2rem;
+  border-bottom: 2px solid var(--border);
+}
+
+.vis-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+  position: relative;
+}
+
+.vis-bar-col:hover .vis-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-4px);
+}
+
+.vis-bar {
+  width: 100%;
+  max-width: 48px;
+  background: var(--primary);
+  border-radius: 6px 6px 0 0;
+  transition: height 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  min-height: 4px;
+}
+
+.vis-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Mobile View: Trend Line SVG Layout */
+.vis-mobile-view {
+  display: none;
+  flex-direction: column;
+  width: 100%;
+}
+
+.vis-svg-wrapper {
+  width: 100%;
+  height: 180px;
+  position: relative;
+  border-bottom: 2px solid var(--border);
+}
+
+.vis-trend-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.vis-trend-line {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke-dashoffset 1s ease-in-out;
+}
+
+.vis-trend-area {
+  fill: var(--primary-light);
+  opacity: 0.5;
+}
+
+.vis-mobile-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.75rem;
+  width: 100%;
+}
+
+.vis-mobile-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.vis-tooltip {
+  position: absolute;
+  top: -35px;
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  background: var(--text-main);
+  color: var(--surface);
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 10;
+  box-shadow: var(--shadow);
+}
+
+.vis-source-note {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: right;
+  margin-top: 0.75rem;
+  font-style: italic;
+}
+
+/* Responsive Switch Point */
+@media (max-width: 650px) {
   .vis-desktop-view {
-    display: flex;
-    flex-direction: column;
+    display: none;
   }
-
-  .vis-bars {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    height: 220px;
-    gap: 8px;
-    padding-top: 2rem;
-    border-bottom: 2px solid var(--border);
-  }
-
-  .vis-bar-col {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: 100%;
-    justify-content: flex-end;
-    position: relative;
-  }
-
-  .vis-bar-col:hover .vis-tooltip {
-    opacity: 1;
-    transform: translateX(-50%) translateY(-4px);
-  }
-
-  .vis-bar {
-    width: 100%;
-    max-width: 48px;
-    background: var(--primary);
-    border-radius: 6px 6px 0 0;
-    transition: height 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    min-height: 4px;
-  }
-
-  .vis-label {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    margin-top: 0.5rem;
-    text-align: center;
-    white-space: nowrap;
-  }
-
-  /* Mobile View: Trend Line SVG Layout */
   .vis-mobile-view {
-    display: none;
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .vis-svg-wrapper {
-    width: 100%;
-    height: 180px;
-    position: relative;
-    border-bottom: 2px solid var(--border);
-  }
-
-  .vis-trend-svg {
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-  }
-
-  .vis-trend-line {
-    fill: none;
-    stroke: var(--primary);
-    stroke-width: 3.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    transition: stroke-dashoffset 1s ease-in-out;
-  }
-
-  .vis-trend-area {
-    fill: var(--primary-light);
-    opacity: 0.5;
-  }
-
-  /* Fixed Vector Effect Ensures Circles Remain Perfect Circles on All Aspect Ratios */
-  .vis-trend-point {
-    fill: var(--surface);
-    stroke: var(--primary);
-    stroke-width: 2.5;
-    vector-effect: non-scaling-stroke;
-  }
-
-  .vis-mobile-labels {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 0.75rem;
-    width: 100%;
   }
-
-  .vis-mobile-label {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    text-align: center;
-  }
-
-  .vis-tooltip {
-    position: absolute;
-    top: -35px;
-    left: 50%;
-    transform: translateX(-50%) translateY(0);
-    background: var(--text-main);
-    color: var(--surface);
-    padding: 0.35rem 0.6rem;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    white-space: nowrap;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.2s ease, transform 0.2s ease;
-    z-index: 10;
-    box-shadow: var(--shadow);
-  }
-
-  .vis-source-note {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    text-align: right;
-    margin-top: 0.75rem;
-    font-style: italic;
-  }
-
-  /* Responsive Switch Point */
-  @media (max-width: 650px) {
-    .vis-desktop-view {
-      display: none;
-    }
-    .vis-mobile-view {
-      display: flex;
-    }
-    .vis-header-text {
-      display: none;
-    }
-    .vis-mobile-header-text {
-      display: inline !important;
-    }
-  }
-
-  .vis-mobile-header-text {
+  .vis-header-text {
     display: none;
   }
+  .vis-mobile-header-text {
+    display: inline !important;
+  }
+}
+
+.vis-mobile-header-text {
+  display: none;
+}
 </style>
 
 <script>
@@ -322,7 +314,6 @@
               <svg class="vis-trend-svg" viewBox="0 0 300 150" preserveAspectRatio="none">
                 <path class="vis-trend-area" id="vis-svg-area" d="" />
                 <path class="vis-trend-line" id="vis-svg-line" d="" />
-                <g id="vis-svg-points"></g>
               </svg>
             </div>
             <div class="vis-mobile-labels" id="vis-mobile-labels"></div>
@@ -340,7 +331,6 @@
       const sourceEl = document.getElementById("vis-source");
       const svgLine = document.getElementById("vis-svg-line");
       const svgArea = document.getElementById("vis-svg-area");
-      const svgPoints = document.getElementById("vis-svg-points");
       const mobileLabelsContainer = document.getElementById("vis-mobile-labels");
 
       function updateChart(key) {
@@ -388,7 +378,6 @@
         
         let pathD = "";
         let areaD = "";
-        let pointsHTML = "";
 
         dataset.data.forEach((item, i) => {
           const x = (i / (pointsCount - 1)) * svgWidth;
@@ -406,14 +395,10 @@
           if (i === pointsCount - 1) {
             areaD += ` L ${x} ${svgHeight} Z`;
           }
-
-          // Uses r="3.5" with non-scaling stroke styling so points remain perfect non-distorted circles
-          pointsHTML += `<circle class="vis-trend-point" cx="${x}" cy="${y}" r="3.5" />`;
         });
 
         svgLine.setAttribute("d", pathD);
         svgArea.setAttribute("d", areaD);
-        svgPoints.innerHTML = pointsHTML;
 
         // Render Averaged/Clean Mobile Timestamp Labels
         mobileLabelsContainer.innerHTML = "";
